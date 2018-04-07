@@ -10,14 +10,7 @@ app.use(express.static(__dirname + '/../react-client/dist'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res) {
-  db.schema
-    .createTable('todos', function(table) {
-      table.increments();
-      table.string('name');
-      table.specificType('is_complete', 'tinyint(1)');
-      table.dateTime('deleted');
-    })
-    .then(res.send('Welcome'));
+  res.send('Welcome');
 });
 
 app.get('/todos', function(req, res) {
