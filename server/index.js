@@ -22,7 +22,7 @@ app.get('/todos', function(req, res) {
       res.send(data);
     })
     .catch(err => {
-      console.log(err);
+      console.log('retrieving todos error: ' + err);
     });
 });
 
@@ -33,7 +33,7 @@ app.post('/new-todo', function(req, res) {
       res.end('saved');
     })
     .catch(err => {
-      console.log(err);
+      console.log('saving error: ' + err);
     });
 });
 
@@ -46,9 +46,9 @@ app.post('/edit-todo', function(req, res) {
       res.end('saved');
     })
     .catch(err => {
-      console.log(err);
+      console.log('editing error: ' + err);
     });
-  res.end('clicked');
+  res.end();
 });
 
 app.post('/delete-todo', function(req, res) {
@@ -57,12 +57,12 @@ app.post('/delete-todo', function(req, res) {
     .where('id', req.body.id)
     .update('deleted', date)
     .then(data => {
-      res.end('saved');
+      res.end();
     })
     .catch(err => {
-      console.log(err);
+      console.log('deleting error:' + err);
     });
-  res.end('clicked');
+  res.end();
 });
 
 let port = process.env.PORT || 3000;
