@@ -1,7 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const { db } = require('../knexfile');
+const environment = process.env.NODE_ENV;
+const knexfile = require('../knexfile')[environment];
+const db = require('knex')(knexfile);
 
 let app = express();
 

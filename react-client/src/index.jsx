@@ -9,8 +9,7 @@ class App extends React.Component {
     this.state = {
       todos: [],
       newTodo: {
-        name: '',
-        max_amount: 0
+        name: ''
       }
     };
 
@@ -36,8 +35,7 @@ class App extends React.Component {
     let name = event.target.value;
     this.setState(prevState => ({
       newTodo: {
-        name: name,
-        max_amount: prevState.newTodo.max_amount
+        name: name
       }
     }));
   }
@@ -49,8 +47,7 @@ class App extends React.Component {
         this.getTodos();
         this.setState(prevState => ({
           newTodo: {
-            name: '',
-            max_amount: 0
+            name: ''
           }
         }));
       });
