@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import List from './components/List.jsx';
+import EditItem from './components/EditItem.jsx';
 
 class App extends React.Component {
   constructor(props) {
@@ -10,34 +11,54 @@ class App extends React.Component {
       todos: [],
       newTodo: {
         name: ''
-      }
+      },
+      editing: null
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
-  }
-
-  getTodos() {
-    $.get('/todos', data => {
-      data.map(todo => {
-        todo.activeModal = false;
-      });
-      this.setState({
-        todos: data
-      });
-    });
+    this.handleSave = this.handleSave.bind(this);
+    this.handleStatus = this.handleStatus.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
   }
 
   componentDidMount() {
     this.getTodos();
   }
 
+  getTodos() {
+    $.get('/todos', data => {
+      // data.map(todo => {
+      //   todo.activeModal = false;
+      // });
+      this.setState({
+        todos: data
+      });
+    });
+  }
+
+  toggleEdit(todo = null) {
+    this.setState({
+      editing: todo
+    });
+  }
+
   handleChange(event) {
     let name = event.target.value;
     this.setState(prevState => ({
       newTodo: {
+        name: name
+      }
+    }));
+  }
+
+  handleEdit(event) {
+    console.log(event.target.value);
+    let name = event.target.value;
+    this.setState(prevState => ({
+      editing: {
         name: name
       }
     }));
@@ -57,25 +78,49 @@ class App extends React.Component {
     }
   }
 
-  handleDelete(id) {
+  handleDelete() {
     let data = {
-      id: id
+      id: this.state.editing.id
     };
+
     $.post('/delete-todo', data, res => {
+      console.log('todo posted');
+      this.getTodos();
+    });
+
+    this.toggleEdit();
+  }
+
+  handleSave(name) {
+    this.setState(prevState => ({
+      editing: {
+        id: prevState.id,
+        name: name,
+        is_complete: prevState.is_complete
+      }
+    }));
+
+    $.post('/edit-todo', this.state.editing, res => {
       console.log('todo posted');
       this.getTodos();
     });
   }
 
-  handleClick(id, status) {
+  handleStatus() {
     let data = {
-      id: id,
-      is_complete: status
+      id: this.state.editing.id,
+      is_complete: parseInt(this.state.editing.is_complete)
     };
+
     $.post('/edit-todo', data, res => {
       console.log('todo posted');
       this.getTodos();
+      this.toggleEdit();
     });
+  }
+
+  handleClick(todo) {
+    this.toggleEdit(todo);
   }
 
   render() {
@@ -104,10 +149,10 @@ class App extends React.Component {
                 Submit
               </button>
             </div>
-            <p>You have {this.state.todos.length} todo list item(s).</p>
+            <p>Only {this.state.todos.length} thing(s) left to do!</p>
             <div
               className="section"
-              style={{ paddingLeft: 0, paddingRight: 0 }}
+              style={{ paddingLeft: 0, paddingRight: 0, paddingTop: '25px' }}
             >
               <List
                 todos={this.state.todos}
@@ -118,6 +163,14 @@ class App extends React.Component {
           </div>
           <div className="column is-one-quarter" />
         </div>
+        <EditItem
+          editing={this.state.editing}
+          handleDelete={this.handleDelete}
+          handleClick={this.handleClick}
+          handleStatus={this.handleStatus}
+          handleSave={this.handleSave}
+          handleEdit={this.handleEdit}
+        />
       </div>
     );
   }
