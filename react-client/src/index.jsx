@@ -21,6 +21,9 @@ class App extends React.Component {
 
   getTodos() {
     $.get('/todos', data => {
+      data.map(todo => {
+        todo.activeModal = false;
+      });
       this.setState({
         todos: data
       });
@@ -77,19 +80,44 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
-        <input
-          type="text"
-          value={this.state.newTodo.name}
-          onChange={this.handleChange}
-        />
-        <input type="submit" value="submit" onClick={this.handleSubmit} />
-        <p>There are {this.state.todos.length} todos.</p>
-        <List
-          todos={this.state.todos}
-          handleClick={this.handleClick}
-          handleDelete={this.handleDelete}
-        />
+      <div className="container">
+        <div className="columns">
+          <div className="column is-one-quarter" />
+          <div className="column">
+            <div className="field">
+              <div className="control">
+                <input
+                  className="input is-primary"
+                  type="text"
+                  value={this.state.newTodo.name}
+                  onChange={this.handleChange}
+                />
+              </div>
+            </div>
+            <div className="control">
+              <button
+                className="button is-primary is-pulled-right"
+                type="submit"
+                value="submit"
+                onClick={this.handleSubmit}
+              >
+                Submit
+              </button>
+            </div>
+            <p>You have {this.state.todos.length} todo list item(s).</p>
+            <div
+              className="section"
+              style={{ paddingLeft: 0, paddingRight: 0 }}
+            >
+              <List
+                todos={this.state.todos}
+                handleClick={this.handleClick}
+                handleDelete={this.handleDelete}
+              />
+            </div>
+          </div>
+          <div className="column is-one-quarter" />
+        </div>
       </div>
     );
   }
