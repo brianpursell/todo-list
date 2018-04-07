@@ -3,7 +3,7 @@ exports.up = function(knex, Promise) {
     knex.schema.createTable('todos', function(table) {
       table.increments('id').primary();
       table.string('name');
-      table.specificType('is_complete', 'tinyint(1)');
+      table.boolean('is_complete');
       table.dateTime('deleted');
     })
   ]);
