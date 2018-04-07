@@ -1,6 +1,6 @@
 module.exports.db = require('knex')({
-  client: 'mysql',
-  connection: process.env.CLEARDB_DATABASE_URL || {
+  client: process.env.DB_TYPE || 'mysql',
+  connection: process.env.DATABASE_URL || {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
