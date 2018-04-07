@@ -5,19 +5,19 @@ const { db } = require('../knexfile');
 
 let app = express();
 
-db.schema.createTable('todos', function(table) {
-  table.increments();
-  table.string('name');
-  table.specificType('is_complete', 'tinyint(1)');
-  table.dateTime('deleted');
-});
-
 app.use(express.static(__dirname + '/../react-client/dist'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function(req, res) {
-  res.send('Welcome');
+  db.schema
+    .createTable('todos', function(table) {
+      table.increments();
+      table.string('name');
+      table.specificType('is_complete', 'tinyint(1)');
+      table.dateTime('deleted');
+    })
+    .then(res.send('Welcome'));
 });
 
 app.get('/todos', function(req, res) {
