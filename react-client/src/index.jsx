@@ -55,11 +55,12 @@ class App extends React.Component {
   }
 
   handleEdit(event) {
-    console.log(event.target.value);
     let name = event.target.value;
     this.setState(prevState => ({
       editing: {
-        name: name
+        id: prevState.editing.id,
+        name: name,
+        is_complete: prevState.editing.is_complete
       }
     }));
   }
@@ -78,6 +79,14 @@ class App extends React.Component {
     }
   }
 
+  handleSave() {
+    $.post('/edit-todo', this.state.editing, res => {
+      console.log('todo posted');
+      this.getTodos();
+      this.toggleEdit();
+    });
+  }
+
   handleDelete() {
     let data = {
       id: this.state.editing.id
@@ -91,28 +100,13 @@ class App extends React.Component {
     this.toggleEdit();
   }
 
-  handleSave(name) {
-    this.setState(prevState => ({
-      editing: {
-        id: prevState.id,
-        name: name,
-        is_complete: prevState.is_complete
-      }
-    }));
-
-    $.post('/edit-todo', this.state.editing, res => {
-      console.log('todo posted');
-      this.getTodos();
-    });
-  }
-
   handleStatus() {
     let data = {
       id: this.state.editing.id,
       is_complete: parseInt(this.state.editing.is_complete)
     };
 
-    $.post('/edit-todo', data, res => {
+    $.post('/change-status', data, res => {
       console.log('todo posted');
       this.getTodos();
       this.toggleEdit();

@@ -1,7 +1,6 @@
 import React from 'react';
 
 const EditItem = props => {
-  console.log(props.editing);
   let showModal = props.editing ? 'is-active' : '';
   let status = 'Mark done';
   let name = '';
@@ -30,7 +29,12 @@ const EditItem = props => {
         <section className="modal-card-body">
           <div className="field">
             <div className="control">
-              <input className="input is-primary" type="text" value={name} />
+              <input
+                className="input is-primary"
+                type="text"
+                value={name}
+                onChange={props.handleEdit}
+              />
             </div>
           </div>
         </section>
@@ -38,23 +42,13 @@ const EditItem = props => {
           className="modal-card-foot"
           style={{ justifyContent: 'flex-end' }}
         >
-          <button
-            className="button is-danger"
-            onClick={e => props.handleDelete()}
-          >
+          <button className="button is-danger" onClick={props.handleDelete}>
             Delete
           </button>
-          <button
-            className="button is-warning"
-            onClick={e => props.handleStatus()}
-          >
+          <button className="button is-warning" onClick={props.handleStatus}>
             {status}
           </button>
-          <button
-            className="button is-primary"
-            onClick={props.handleSave}
-            onChange={props.handleEdit}
-          >
+          <button className="button is-primary" onClick={props.handleSave}>
             Save
           </button>
         </footer>

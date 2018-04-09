@@ -37,11 +37,24 @@ app.post('/new-todo', function(req, res) {
     });
 });
 
-app.post('/edit-todo', function(req, res) {
+app.post('/change-status', function(req, res) {
   let status = !parseInt(req.body.is_complete);
   db('todos')
     .where('id', req.body.id)
     .update('is_complete', status)
+    .then(data => {
+      res.end('saved');
+    })
+    .catch(err => {
+      console.log('editing error: ' + err);
+    });
+  res.end();
+});
+
+app.post('/edit-todo', function(req, res) {
+  db('todos')
+    .where('id', req.body.id)
+    .update(req.body)
     .then(data => {
       res.end('saved');
     })
