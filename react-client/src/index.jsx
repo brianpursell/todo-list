@@ -12,7 +12,8 @@ class App extends React.Component {
       newTodo: {
         name: ''
       },
-      editing: null
+      editing: null,
+      count: 0
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -22,20 +23,32 @@ class App extends React.Component {
     this.handleSave = this.handleSave.bind(this);
     this.handleStatus = this.handleStatus.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.leftToDo = this.leftToDo.bind(this);
   }
 
   componentDidMount() {
     this.getTodos();
   }
 
-  getTodos() {
+  leftToDo() {
+    let total = 0;
+
+    this.state.todos.forEach(todo => {
+      if (!todo.is_complete) {
+        total++;
+      }
+    });
+    this.setState({
+      count: total
+    });
+  }
+
+  getTodos(callback) {
     $.get('/todos', data => {
-      // data.map(todo => {
-      //   todo.activeModal = false;
-      // });
       this.setState({
         todos: data
       });
+      this.leftToDo();
     });
   }
 
@@ -118,6 +131,12 @@ class App extends React.Component {
   }
 
   render() {
+    let phrase = `You're all done!`;
+    if (this.state.count === 1) {
+      phrase = `Only 1 thing left to do!`;
+    } else if (this.state.count > 1) {
+      phrase = `Only ${this.state.count} things left to do!`;
+    }
     return (
       <div className="container">
         <div className="columns">
@@ -143,7 +162,7 @@ class App extends React.Component {
                 Submit
               </button>
             </div>
-            <p>Only {this.state.todos.length} thing(s) left to do!</p>
+            <p>{phrase}</p>
             <div
               className="section"
               style={{ paddingLeft: 0, paddingRight: 0, paddingTop: '25px' }}
