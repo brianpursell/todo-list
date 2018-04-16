@@ -1,28 +1,81 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const environment = process.env.NODE_ENV;
-const knexfile = require('../knexfile')[environment];
-const db = require('knex')(knexfile);
+const db = require('../database/index.js');
+const passport = require('passport');
+const Strategy = require('passport-local').Strategy;
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const { ensureLoggedIn } = require('connect-ensure-login');
+
+passport.use(
+  new Strategy((username, password, cb) => {
+    db.findByUsername(username, (err, user) => {
+      if (err) {
+        return cb(err);
+      }
+      if (!user) {
+        return cb(null, false);
+      }
+      if (user.password != password) {
+        return cb(null, false);
+      }
+      return cb(null, user);
+    });
+  })
+);
+
+passport.serializeUser((user, cb) => {
+  cb(null, user.id);
+});
+
+passport.deserializeUser((id, cb) => {
+  db.findById(id, (err, user) => {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, user);
+  });
+});
 
 let app = express();
 
 app.use(express.static(__dirname + '/../react-client/dist'));
+app.use(morgan('combined'));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.get('/', (req, res) => {
-  res.send('Welcome');
+app.get('/', ensureLoggedIn('http://www.google.com'), (req, res) => {
+  res.render('index', { user: req.user });
 });
 
-app.post('/login', (req, res) => {
-  console.log(req.body);
-  res.end('data received');
+app.post(
+  '/login',
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('http://www.google.com');
 });
 
 app.get('/todos', (req, res) => {
-  db('todos')
-    .where('deleted', null)
+  db
+    .getTodos()
     .then(data => {
       res.send(data);
     })
@@ -32,8 +85,8 @@ app.get('/todos', (req, res) => {
 });
 
 app.post('/add', (req, res) => {
-  db('todos')
-    .insert(req.body)
+  db
+    .addTodo(req.body)
     .then(data => {
       res.end('saved');
     })
@@ -43,9 +96,8 @@ app.post('/add', (req, res) => {
 });
 
 app.post('/edit', (req, res) => {
-  db('todos')
-    .where('id', req.body.id)
-    .update(req.body)
+  db
+    .editTodo(req.body)
     .then(data => {
       res.end('saved');
     })
@@ -56,10 +108,8 @@ app.post('/edit', (req, res) => {
 });
 
 app.post('/delete', (req, res) => {
-  let date = new Date();
-  db('todos')
-    .where('id', req.body.id)
-    .update('deleted', date)
+  db
+    .deleteTodo(req.body.id)
     .then(data => {
       res.end();
     })
@@ -71,9 +121,8 @@ app.post('/delete', (req, res) => {
 
 app.post('/change-status', (req, res) => {
   let status = !parseInt(req.body.is_complete);
-  db('todos')
-    .where('id', req.body.id)
-    .update('is_complete', status)
+  db
+    .changeTodoStatus(req.body.id, status)
     .then(data => {
       res.end('saved');
     })
