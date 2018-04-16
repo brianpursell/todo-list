@@ -11,11 +11,16 @@ app.use(express.static(__dirname + '/../react-client/dist'));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
   res.send('Welcome');
 });
 
-app.get('/todos', function(req, res) {
+app.post('/login', (req, res) => {
+  console.log(req.body);
+  res.end('data received');
+});
+
+app.get('/todos', (req, res) => {
   db('todos')
     .where('deleted', null)
     .then(data => {
@@ -26,7 +31,7 @@ app.get('/todos', function(req, res) {
     });
 });
 
-app.post('/new-todo', function(req, res) {
+app.post('/add', (req, res) => {
   db('todos')
     .insert(req.body)
     .then(data => {
@@ -37,21 +42,7 @@ app.post('/new-todo', function(req, res) {
     });
 });
 
-app.post('/change-status', function(req, res) {
-  let status = !parseInt(req.body.is_complete);
-  db('todos')
-    .where('id', req.body.id)
-    .update('is_complete', status)
-    .then(data => {
-      res.end('saved');
-    })
-    .catch(err => {
-      console.log('editing error: ' + err);
-    });
-  res.end();
-});
-
-app.post('/edit-todo', function(req, res) {
+app.post('/edit', (req, res) => {
   db('todos')
     .where('id', req.body.id)
     .update(req.body)
@@ -64,7 +55,7 @@ app.post('/edit-todo', function(req, res) {
   res.end();
 });
 
-app.post('/delete-todo', function(req, res) {
+app.post('/delete', (req, res) => {
   let date = new Date();
   db('todos')
     .where('id', req.body.id)
@@ -78,8 +69,22 @@ app.post('/delete-todo', function(req, res) {
   res.end();
 });
 
+app.post('/change-status', (req, res) => {
+  let status = !parseInt(req.body.is_complete);
+  db('todos')
+    .where('id', req.body.id)
+    .update('is_complete', status)
+    .then(data => {
+      res.end('saved');
+    })
+    .catch(err => {
+      console.log('editing error: ' + err);
+    });
+  res.end();
+});
+
 let port = process.env.PORT || 3000;
 
-app.listen(port, function() {
+app.listen(port, () => {
   console.log('listening on port ' + port + '!');
 });

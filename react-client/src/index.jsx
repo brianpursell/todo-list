@@ -80,7 +80,7 @@ class App extends React.Component {
 
   handleSubmit() {
     if (this.state.newTodo.name.length) {
-      $.post('/new-todo', this.state.newTodo, res => {
+      $.post('/add', this.state.newTodo, res => {
         console.log('new todo posted');
         this.getTodos();
         this.setState(prevState => ({
@@ -93,7 +93,7 @@ class App extends React.Component {
   }
 
   handleSave() {
-    $.post('/edit-todo', this.state.editing, res => {
+    $.post('/edit', this.state.editing, res => {
       console.log('todo posted');
       this.getTodos();
       this.toggleEdit();
@@ -105,7 +105,7 @@ class App extends React.Component {
       id: this.state.editing.id
     };
 
-    $.post('/delete-todo', data, res => {
+    $.post('/delete', data, res => {
       console.log('todo posted');
       this.getTodos();
     });
